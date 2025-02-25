@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 1,
+    "UserName": "Ruti",
+    "Password": "rutich33013",
+    "Type": "Admin"
+  },
+  {
+    "Id": 2,
+    "UserName": "Bracelet",
+    "Password": "kigmeru6543hnyuibui",
+    "Type": "User"
+  },
+  {
+    "Id": 3,
+    "UserName": "Ring",
+    "Password": "loi865fvgr5gu",
+    "Type": "User"
+  },
+  {
+    "Id": 4,
+    "UserName": "Earrings",
+    "Password": "lkjhgfds987654",
+    "Type": "User"
+  },
+  {
+    "Id": 5,
+    "UserName": "Pendant",
+    "Password": "lkjht678ijbr567uj",
+    "Type": "User"
+  },
+  {
+    "Id": 6,
+    "UserName": "Brooch",
+    "Password": "l9876543wsxcvbju76",
+    "Type": "User"
+  },
+  {
+    "Id": 7,
+    "UserName": "Tiara",
+    "Password": "ngtyuhbh",
+    "Type": "User"
+  },
+  {
+    "Id": 8,
+    "UserName": "Bangle",
+    "Password": "nhynhyu653",
+    "Type": "User"
+  },
+  {
+    "Id": 9,
+    "UserName": "Crown",
+    "Password": "lkjhgfrtyujn8t655",
+    "Type": "User"
+  },
+  {
+    "Id": 10,
+    "UserName": "Locket",
+    "Password": "8765gbnbvdtyh",
+    "Type": "User"
+  }
+]
