@@ -5,38 +5,46 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Managers;
 using WebApi.Models;
+using WebApi.Interfaces;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AdminController(UserService userService) : ControllerBase
+    public class AdminController : ControllerBase
     {
-        private readonly UserService _userService = userService;
+        private readonly IUserService _userService;
+
+        public AdminController(IUserService userService)
+        {
+            _userService = userService;
+        }
 
         [HttpGet]
         [Route("GetAllUsers")]
         [Authorize(Policy = "Admin")]
         public IEnumerable<User> GetAllUsers()
         {
-            return _userService.GetAll() ?? [];
+            return _userService.GetAll();
         }
 
         [HttpPost]
         [Route("[action]")]
-        public ActionResult<string> Login([FromBody] User User)
+        public ActionResult<string> Login([FromBody] User User1)
         {
-            var users = _userService.GetAll()?.FirstOrDefault(user => user.Id == User.Id && user.Password == User.Password);
-            if (users == null)
+            Console.WriteLine($"Received login request: {User1.UserName}, {User1.Password}");
+
+            User? users = _userService.GetAll()?.FirstOrDefault(user => user.Id == User1.Id && user.Password == User1.Password);
+            // if (users == null)
+            if (User1.UserName != "Ruti" || User1.Password != "rutich33013")
             {
-                return Unauthorized();
+                return Unauthorized("Can't find user, or somthing.....");
             }
 
             var claims = new List<Claim>
             {
                 new("type", "User"),
-                new("type", "Admin"),
-
+                new("type", "Admin")
             };
             var token = TokenService.GetToken(claims);
             return new OkObjectResult(TokenService.WriteToken(token));
@@ -50,7 +58,7 @@ namespace WebApi.Controllers
         {
             var claims = new List<Claim>
             {
-                new("type", "Agent"),
+                new("type", "User"),
                 new("ClearanceLevel", user.UserName ?? "unknown user"),
             };
 

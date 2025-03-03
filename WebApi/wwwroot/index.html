@@ -1,258 +1,50 @@
-<!-- <!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Jewelry CRUD</title>
-    <link rel="stylesheet" href="css/jewelry.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jewelry Store</title>
+  <link rel="stylesheet" href="style.css">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <script src="https://kit.fontawesome.com/8f066012a0.js" crossorigin="anonymous"></script>
+
 </head>
 
 <body>
-    <h1>Jewelry Management</h1>
-    <h3>Add Jewelry</h3>
-    <form action="javascript:void(0);" method="POST" onsubmit="addJewelry()">
-        <input type="text" id="add-name" placeholder="New Jewelry">
-        <input type="text" id="add-Price" placeholder="New Jewelry">
-        <input type="submit" value="Add">
-    </form>
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card p-4 shadow-lg rounded-4" style="max-width: 400px; width: 100%;">
+      <h2 class="text-center mb-4">🔐 התחברות</h2>
 
-    <div id="editForm">
-        <h3>Edit Jewelry</h3>
-        <form action="javascript:void(0);" onsubmit="updateJewelry()">
-            <input type="hidden" id="edit-id">
-            <input type="text" id="edit-name">
-            <input type="text" id="edit-Price">
-            <input type="submit" value="Save">
-            <a onclick="closeInput()" aria-label="Close">&#10006;</a>
-        </form>
+      <form id="loginForm">
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+          <input type="text" id="username" name="username" class="form-control" placeholder="שם משתמש" required>
+        </div>
+
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          <input type="password" id="password" name="password" class="form-control" placeholder="סיסמה" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">🚀 התחבר</button>
+      </form>
+      <a class="nav-link btn btn-light text-dark px-3 p-2 w-100" href="/google/login" asp-controller="Google"
+        asp-action="Login">
+        <i class="fab fa-google"></i> Login with Google
+      </a>
     </div>
+  </div>
 
-    <p id="counter"></p>
+  <!-- Bootstrap 5 JS  -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th></th>
-            <th></th>
-        </tr>
-        <tbody id="jewelry-list"></tbody>
-    </table>
 
-    <script src="js/jewelry2.js" asp-append-version="true"></script>
-    <script type="text/javascript">
-        getJewelryItems();
-    </script>
+  <script src="./js/index.js"></script>
 </body>
 
-</html> -->
-
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jewelry Store</title>
-    <link rel="stylesheet" href="./css/jewelry.css" />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f9f9f9;
-      }
-
-      header {
-        background-color: #333;
-        color: white;
-        padding: 1rem 0;
-        text-align: center;
-      }
-
-      nav {
-        display: flex;
-        justify-content: center;
-        background-color: #444;
-        padding: 0.5rem 0;
-      }
-
-      nav a {
-        color: white;
-        text-decoration: none;
-        margin: 0 1rem;
-        font-size: 1.1rem;
-      }
-
-      nav a:hover {
-        color: gold;
-      }
-
-      .hero {
-        text-align: center;
-        /* background: url('https://via.placeholder.com/1920x600?text=Jewelry+Store') no-repeat center center/cover; */
-        background: url("./pictures/2.jpg") no-repeat center center/cover;
-        color: white;
-        padding: 5rem 1rem;
-      }
-
-      .hero h1 {
-        font-size: 3rem;
-        margin: 0;
-      }
-
-      .products {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        padding: 2rem;
-      }
-
-      .product {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        overflow: hidden;
-        text-align: center;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      .product img {
-        width: 100%;
-        height: auto;
-      }
-
-      .product h3 {
-        margin: 0.5rem 0;
-        font-size: 1.2rem;
-      }
-
-      .product p {
-        color: #777;
-        margin: 0.5rem 0;
-      }
-
-      .product button {
-        background-color: gold;
-        border: none;
-        color: white;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        margin-bottom: 1rem;
-      }
-
-      .product button:hover {
-        background-color: #ffcc00;
-      }
-
-      footer {
-        background-color: #333;
-        color: white;
-        text-align: center;
-        padding: 1rem 0;
-        margin-top: 2rem;
-      }
-    </style>
-  </head>
-
-  <body>
-    <header>
-      <h1>Jewelry Store</h1>
-    </header>
-
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#products">Products</a>
-      <a href="#contact">Contact</a>
-      <a href="./" asp-controller="Account" asp-action="Login"
-        >Login with Google</a
-      >
-    </nav>
-
-    <div class="hero">
-      <h1>Discover Your Next Treasure</h1>
-      <p>Shop elegant and timeless jewelry for every occasion.</p>
-    </div>
-
-    <section id="products" class="products">
-      <div class="product">
-        <img src="./pictures/1.jpg" alt="Ring" />
-        <h3>Elegant Ring</h3>
-        <p>$99.99</p>
-        <button onclick="addToCart('Elegant Ring', 99.99)">Add to Cart</button>
-      </div>
-      <div class="product">
-        <img src="./pictures/1.jpg" alt="Necklace" />
-        <h3>Beautiful Necklace</h3>
-        <p>$149.99</p>
-        <button onclick="addToCart('Beautiful Necklace', 149.99)">
-          Add to Cart
-        </button>
-      </div>
-      <div class="product">
-        <img src="./pictures/1.jpg" alt="Bracelet" />
-        <h3>Chic Bracelet</h3>
-        <p>$79.99</p>
-        <button onclick="addToCart('Chic Bracelet', 79.99)">Add to Cart</button>
-      </div>
-    </section>
-
-    <section id="products2" class="products">
-
-    </section>
-
-    <footer>
-      <p>&copy; 2025 Jewelry Store. All rights reserved.</p>
-    </footer>
-
-    <section>
-      <h3>Add Jewelry</h3>
-      <form id="add-form" onsubmit="addJewelry()">
-        <input type="text" id="add-name" placeholder="Name" required />
-        <input type="text" id="add-Price" placeholder="Price" required />
-        <input type="submit" value="Add" />
-      </form>
-    </section>
-
-    <section id="editForm" style="display: none">
-      <h3>Edit Jewelry</h3>
-      <form onsubmit="updateJewelry()">
-        <input type="hidden" id="edit-id" />
-        <input type="text" id="edit-name" placeholder="Name" required />
-        <input type="text" id="edit-Price" placeholder="Price" required />
-        <input type="submit" value="Save" />
-        <button type="submit" aria-label="Save"></button>
-        <button type="button" onclick="closeInput()" aria-label="Close">
-          Cancel
-        </button>
-      </form>
-    </section>
-
-    <p id="counter"></p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Edit</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody id="jewelry-list"></tbody>
-    </table>
-
-    <script>
-      function addToCart(product, price) {
-        const user = "ruti",
-          token = "mjhgfdsxcgyu7654rfvghu87ytgvb";
-        sessionStorage.setItem(`${user}`, `${token}`);
-        alert(`${product} has been added to your cart for $${price}!`);
-      }
-    </script>
-
-    <script src="./js/jewelry2.js" asp-append-version="true"></script>
-    <script>
-      getJewelryItems();
-    </script>
-  </body>
 </html>

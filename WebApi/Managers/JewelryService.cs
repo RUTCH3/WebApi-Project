@@ -1,22 +1,20 @@
 using WebApi.Models;
 using WebApi.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace WebApi.Managers
 {
     public class JewelryService : IJewelryService
     {
-        private readonly string _filePath = Path.Combine("./", "users.json");
+        private readonly string _filePath = "../wwwroot/data/users.json";
         List<Jewelry> Jewelrys { get; }
         int nextId = 3;
         public JewelryService()
         {
-            Jewelrys =
-            [
-                new Jewelry { Id = 1, Name = "Ring", Price = 12 },
-                new Jewelry { Id = 2, Name = "Necklace", Price = 12  }
-            ];
+            var json = File.ReadAllText(_filePath);
+            Jewelrys = JsonConvert.DeserializeObject<List<Jewelry>>(json);
+            System.Console.WriteLine("fetch all data from server.");
         }
 
         public List<Jewelry> GetAll() => Jewelrys;
@@ -46,5 +44,11 @@ namespace WebApi.Managers
         }
 
         public int Count { get => Jewelrys.Count; }
+
+        public void SaveJewelrys(List<Jewelry> users)
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(users, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_filePath, json);
+        }
     }
 }

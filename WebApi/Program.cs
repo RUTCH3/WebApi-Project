@@ -1,8 +1,11 @@
 using WebApi.Managers;
 using WebApi.Interfaces;
-using WebApi.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +20,6 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "Jewelry", Version = "v1" });
@@ -37,49 +39,109 @@ builder.Services.AddSwaggerGen(c =>
                 Array.Empty<string>()
             }
         });
-    }
-);
-
-// Add services of Jewelry
-builder.Services.AddSingleton<IJewelryService, JewelryService>();
-
-builder.Services.AddAuthentication(options =>
+        // הגדרת OAuth2 בגוגל
+        c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.OAuth2,
+            Flows = new OpenApiOAuthFlows
+            {
+                AuthorizationCode = new OpenApiOAuthFlow
+                {
+                    AuthorizationUrl = new Uri("https://accounts.google.com/o/oauth2/auth"),
+                    TokenUrl = new Uri("https://oauth2.googleapis.com/token"),
+                    Scopes = new Dictionary<string, string>
+                {
+                    { "openid", "OpenID Connect" },
+                    { "profile", "Access profile information" },
+                    { "email", "Access email address" }
+                }
+                }
+            }
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(cfg =>
-    {
-        cfg.RequireHttpsMetadata = true;
-        cfg.TokenValidationParameters = TokenService.GetTokenValidationParameters();
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "oauth2"
+                }
+            },
+            new List<string>() { "openid", "profile", "email" }
+        }
+
+    });
     });
 
+// Add services of Jewelry and users
+builder.Services.AddSingleton<IJewelryService, JewelryService>();
+builder.Services.AddSingleton<IUserService, UserService>();
+
+// טעינת הגדרות מגוגל ו-JWT
 var googleAuthConfig = builder.Configuration.GetSection("Authentication:Google");
+var jwtConfig = builder.Configuration.GetSection("Authentication:Jwt");
 var clientId = googleAuthConfig["ClientId"];
 var clientSecret = googleAuthConfig["ClientSecret"];
 
-// הגדרת Google Authentication
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
-    {
-        options.ClientId = clientId;
-        options.ClientSecret = clientSecret; // Client Secret
-        options.CallbackPath = "/home"; // מסלול אליו גוגל יחזור לאחר האימות
-    });
+// הוספת אימות דרך Google
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = clientId;
+    options.ClientSecret = clientSecret;
+    options.CallbackPath = "/signin-google";
+    options.BackchannelTimeout = TimeSpan.FromMinutes(2); // הארכת זמן ההמתנה
+    options.Scope.Add("profile"); // גישה לפרופיל
+    options.Scope.Add("email"); // גישה לאימייל
+})
+.AddJwtBearer(options =>
+{
+    options.Authority = "https://accounts.google.com";
+    options.MetadataAddress = "https://accounts.google.com/.well-known/openid-configuration";
+    options.Audience = clientId;
+    options.RequireHttpsMetadata = true;
+    options.SaveToken = true;
+    options.TokenValidationParameters = TokenService.GetTokenValidationParameters();
+});
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy => policy.RequireClaim("type", "Admin"))
     .AddPolicy("User", policy => policy.RequireClaim("type", "User"));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
+
 var app = builder.Build();
 
-app.UseErrorMiddleware();
-app.UseLogMiddleware();
+app.UseCors("AllowAll");
+// app.UseErrorMiddleware();
+// app.UseLogMiddleware();
+// app.UseMiddleware<LogMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"));
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");// הגדרת Google OAuth ב-Swagger UI
+        c.OAuthClientId(clientId);
+        c.OAuthClientSecret(clientSecret);
+        c.OAuthAppName("My API - Swagger UI");
+        c.OAuthUsePkce();
+    });
 }
 
 app.UseDefaultFiles();

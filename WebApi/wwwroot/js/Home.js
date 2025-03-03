@@ -1,4 +1,4 @@
-const crown = "/jewelry";
+const crown = "../data/jewelrys.json";
 let jewelryItems = [];
 
 function getJewelryItems() {
@@ -63,13 +63,10 @@ function closeInput() {
 }
 
 function _displayJewelryItems(data) {
-  // const tBody = document.getElementById("jewelry-list");
   const section = document.getElementById("products2");
-  // tBody.innerHTML = "";
   section.innerHTML = "";
 
-  _displayCount(data.length);
-
+  let count = 5;
   data.forEach((item) => {
     // יצירת אלמנט div עם class="product"
     const productDiv = document.createElement("div");
@@ -77,27 +74,27 @@ function _displayJewelryItems(data) {
 
     // יצירת אלמנט תמונה
     const img = document.createElement("img");
-    img.src = item.image || "./pictures/1.jpg"; // ברירת מחדל אם אין תמונה
+    img.src = item.image || `../pictures/${count++}.jpg`; // ברירת מחדל אם  תמונה
     img.alt = item.name;
 
     // יצירת כותרת המוצר
     const title = document.createElement("h3");
-    title.textContent = item.name;
+    title.textContent = item.Name;
 
     // יצירת מחיר
     const price = document.createElement("p");
-    price.textContent = `$${item.price || "N/A"}`;
+    price.textContent = `₪${item.Price || "N/A"}`;
 
     // יצירת כפתור הוספה לסל
     const addToCartButton = document.createElement("button");
     addToCartButton.textContent = "Add to Cart";
-    addToCartButton.style.border = "yellow solid 2px";
+    addToCartButton.style.border = "black solid 2px";
     addToCartButton.onclick = () => addToCart(item.name, item.price);
 
     // יצירת כפתור עריכה לסל
     const editToCartButton = document.createElement("button");
     editToCartButton.textContent = "edit Cart";
-    editToCartButton.style.border = "yellow solid 2px";
+    editToCartButton.style.border = "black solid 2px";
     editToCartButton.onclick = () => addToCart(item.name, item.price);
 
     // הוספת כל האלמנטים ל-div
@@ -116,3 +113,36 @@ function _displayCount(count) {
   const counter = document.getElementById("counter");
   counter.textContent = `${count} ${count === 1 ? "item" : "items"}`;
 }
+
+function addToCart(product, price) {
+  alert(`${product} has been added to your cart for $${price}!`);
+}
+const saveToken = (token) => {
+  sessionStorage.setItem("token", token);
+  console.log("Token saved:", token);
+  window.location.href = "/dashboard.html"; // ניתוב לדף הרלוונטי
+};
+
+// קבלי את הטוקן מהשרת אחרי התחברות
+fetch("/auth/google-token") // כתובת ה-API שמחזירה את הטוקן
+  .then((res) => res.json())
+  .then((data) => {
+    if (data.token) {
+      saveToken(data.token);
+    } else {
+      console.error("No token received", data);
+    }
+  })
+  .catch((err) => console.error("Error fetching token:", err));
+
+const init = () => {
+  const token = sessionStorage.getItem("token");
+
+  if (!token) {
+    alert("אין הרשאה. נא להתחבר.");
+    window.location.href = "/index.html"; // מחזיר לדף ההתחברות
+  } else
+    getJewelryItems();
+}
+
+init();

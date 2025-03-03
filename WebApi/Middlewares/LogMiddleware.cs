@@ -19,8 +19,8 @@ public class LogMiddleware{
         var sw = new Stopwatch();
         sw.Start();
         await next.Invoke(c);
-        // logger.LogDebug($"{c.Request.Path}.{c.Request.Method} took {sw.ElapsedMilliseconds}ms."
-        //     + $" User: {c.User?.FindFirst("userId")?.Value ?? "unknown"}\n");
+        logger.LogDebug($"{c.Request.Path}.{c.Request.Method} took {sw.ElapsedMilliseconds}ms."
+            + $" User: {c.User?.FindFirst("userId")?.Value ?? "unknown"}\n");
 
         string logMessage = $"[{DateTime.Now}]] {c.Request.Method} "
             + $"{c.Request.Path}.{c.Request.Method} took {sw.ElapsedMilliseconds}ms."
@@ -30,10 +30,10 @@ public class LogMiddleware{
     }
 }
 
-public static partial class MiddlewareExtensions
-{
-    public static IApplicationBuilder UseLogMiddleware(this IApplicationBuilder build)
-    {
-        return build.UseMiddleware<LogMiddleware>();
-    }
-}
+// public static partial class MiddlewareExtensions
+// {
+//     public static IApplicationBuilder UseLogMiddleware(this IApplicationBuilder build)
+//     {
+//         return build.UseMiddleware<LogMiddleware>();
+//     }
+// }

@@ -12,12 +12,6 @@
     "Type": "User"
   },
   {
-    "Id": 3,
-    "UserName": "Ring",
-    "Password": "loi865fvgr5gu",
-    "Type": "User"
-  },
-  {
     "Id": 4,
     "UserName": "Earrings",
     "Password": "lkjhgfds987654",
@@ -57,6 +51,12 @@
     "Id": 10,
     "UserName": "Locket",
     "Password": "8765gbnbvdtyh",
+    "Type": "User"
+  },
+  {
+    "Id": 11,
+    "UserName": "string12345",
+    "Password": "strinKGFV6567YHGg",
     "Type": "User"
   }
 ]

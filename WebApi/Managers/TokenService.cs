@@ -11,6 +11,7 @@ namespace WebApi.Managers
     public static class TokenService
     {
         private static readonly SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes("SXkSqsKyNUyvGbnHs7ke2NCq8zQzNLW7mPmHbnZZ"));
+        public static SymmetricSecurityKey GetKey() { return key; }
         private static readonly string issuer = "https://jewelry-store.com";
         public static SecurityToken GetToken(List<Claim> claims) =>
             new JwtSecurityToken(
