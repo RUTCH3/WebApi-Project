@@ -124,9 +124,8 @@ function addToCart(product, price) {
   alert(`${product} has been added to your cart for $${price}!`);
 
 }
-const saveToken = (token, user) => {
+const saveToken = (token) => {
   sessionStorage.setItem("token", token);
-  sessionStorage.setItem("user", user);
   console.log("Token saved:", token);
 };
 
@@ -147,7 +146,7 @@ fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטו�
   .then((data) => {
     if (data.token) {
       console.log("reached to token in google....");
-      saveToken(data.token, data);
+      saveToken(data.token);
       init();
     } else {
       console.error("No token received", data);
@@ -161,7 +160,7 @@ fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטו�
     // })
     //   .then((data) => {
     let data = { "token": "kjhgfdxcvbhu765rfvbnji87ytg.8765rvhuygh.6r7ytfgb" };
-    saveToken(data.token, data);
+    saveToken(data.token);
     init();
     // })
     // .catch((error) => console.error("Unable to update item.", error, "\ngoogle error: ", err));
