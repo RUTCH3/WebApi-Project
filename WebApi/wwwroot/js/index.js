@@ -5,7 +5,7 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
         id: 1,
         userName: String(document.getElementById("username").value),
         password: String(document.getElementById("password").value),
-        Type: "Admin"
+        Type: String(document.getElementById("admin").value)
     };
 
     try {

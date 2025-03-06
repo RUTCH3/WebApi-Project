@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using WebApi.Middlewares;
 
 
 
@@ -12,8 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // הגדרת HTTPS
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5000); // HTTP
-    options.ListenLocalhost(5001, listenOptions => { listenOptions.UseHttps(); });
+    options.ListenLocalhost(3000); // HTTP
+    options.ListenLocalhost(3001, listenOptions => { listenOptions.UseHttps(); });
 });
 
 builder.Services.AddControllers();
@@ -98,6 +99,7 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = clientSecret;
     options.CallbackPath = "/signin-google";
     options.BackchannelTimeout = TimeSpan.FromMinutes(2); // הארכת זמן ההמתנה
+    options.Scope.Add("openid");
     options.Scope.Add("profile"); // גישה לפרופיל
     options.Scope.Add("email"); // גישה לאימייל
 })

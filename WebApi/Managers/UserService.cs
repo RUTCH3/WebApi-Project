@@ -14,7 +14,8 @@ namespace WebApi.Managers
         {
             var json = File.ReadAllText(_filePath);
             Users = JsonConvert.DeserializeObject<List<User>>(json);
-            System.Console.WriteLine("fetch all data from server.");
+            foreach (User User1 in Users) { Console.WriteLine($"{User1.Id},{User1.UserName},{User1.Password},{User1.Type},{User1.Basket}"); }
+            Console.WriteLine("fetch all data from server.");
         }
 
         public List<User> GetAll() => Users;

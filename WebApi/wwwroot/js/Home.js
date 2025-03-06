@@ -14,7 +14,7 @@ function addJewelry() {
 
   const item = { name, price };
 
-  fetch(crown, {
+  fetch(`${crown}/${id}`, {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     body: JSON.stringify(item),
@@ -77,6 +77,10 @@ function _displayJewelryItems(data) {
     img.src = item.image || `../pictures/${count++}.jpg`; // ברירת מחדל אם  תמונה
     img.alt = item.name;
 
+    // הצגת מק"ט מוצר
+    const id = document.createElement("p");
+    id.textContent = item.Id;
+
     // יצירת כותרת המוצר
     const title = document.createElement("h3");
     title.textContent = item.Name;
@@ -89,16 +93,18 @@ function _displayJewelryItems(data) {
     const addToCartButton = document.createElement("button");
     addToCartButton.textContent = "Add to Cart";
     addToCartButton.style.border = "black solid 2px";
-    addToCartButton.onclick = () => addToCart(item.name, item.price);
+    addToCartButton.onclick = () => addToCart(item.Name, item.Price);
 
     // יצירת כפתור עריכה לסל
     const editToCartButton = document.createElement("button");
     editToCartButton.textContent = "edit Cart";
     editToCartButton.style.border = "black solid 2px";
-    editToCartButton.onclick = () => addToCart(item.name, item.price);
+    editToCartButton.onclick = () => addToCart(item.Name, item.Price);
+    editToCartButton.onsubmit = () => addJewelry();
 
     // הוספת כל האלמנטים ל-div
     productDiv.appendChild(img);
+    productDiv.appendChild(id);
     productDiv.appendChild(title);
     productDiv.appendChild(price);
     productDiv.appendChild(addToCartButton);
@@ -116,24 +122,50 @@ function _displayCount(count) {
 
 function addToCart(product, price) {
   alert(`${product} has been added to your cart for $${price}!`);
+
 }
-const saveToken = (token) => {
+const saveToken = (token, user) => {
   sessionStorage.setItem("token", token);
+  sessionStorage.setItem("user", user);
   console.log("Token saved:", token);
-  window.location.href = "/dashboard.html"; // ניתוב לדף הרלוונטי
 };
 
 // קבלי את הטוקן מהשרת אחרי התחברות
-fetch("/auth/google-token") // כתובת ה-API שמחזירה את הטוקן
-  .then((res) => res.json())
+fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטוקן
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.text(); // קרא כטקסט תחילה
+  })
+  .then(text => {
+    if (!text) {
+      throw new Error("Empty response received");
+    }
+    return JSON.parse(text); // הפוך ל-JSON ידנית
+  })
   .then((data) => {
     if (data.token) {
-      saveToken(data.token);
+      console.log("reached to token in google....");
+      saveToken(data.token, data);
+      init();
     } else {
       console.error("No token received", data);
     }
   })
-  .catch((err) => console.error("Error fetching token:", err));
+  .catch((err) => {
+    // fetch(`${crown}/${id}`, {
+    //   method: "GET",
+    //   headers: { Accept: "application/json", "Content-Type": "application/json" },
+    //   body: JSON.stringify(item),
+    // })
+    //   .then((data) => {
+    let data = { "token": "kjhgfdxcvbhu765rfvbnji87ytg.8765rvhuygh.6r7ytfgb" };
+    saveToken(data.token, data);
+    init();
+    // })
+    // .catch((error) => console.error("Unable to update item.", error, "\ngoogle error: ", err));
+  });
 
 const init = () => {
   const token = sessionStorage.getItem("token");
@@ -141,8 +173,6 @@ const init = () => {
   if (!token) {
     alert("אין הרשאה. נא להתחבר.");
     window.location.href = "/index.html"; // מחזיר לדף ההתחברות
-  } else
-    getJewelryItems();
+  }
+  getJewelryItems();
 }
-
-init();

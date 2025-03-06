@@ -14,7 +14,7 @@ namespace WebApi.Managers
         {
             var json = File.ReadAllText(_filePath);
             Jewelrys = JsonConvert.DeserializeObject<List<Jewelry>>(json);
-            System.Console.WriteLine("fetch all data from server.");
+            Console.WriteLine("fetch all data from server.");
         }
 
         public List<Jewelry> GetAll() => Jewelrys;

@@ -18,12 +18,14 @@ public class JewelryController : ControllerBase
     }
 
     [HttpGet]
+    [Route("[action]")]
     public ActionResult<List<Jewelry>> Get()
     {
         return Ok(_jewelryService.GetAll());
     }
 
-    [HttpGet("{id}")]
+    [HttpGet]
+    [Route("[action]/{id}")]
     public ActionResult<Jewelry> Get(int id)
     {
         var jewelry = list.FirstOrDefault(p => p.Id == id);
@@ -33,6 +35,7 @@ public class JewelryController : ControllerBase
     }
 
     [HttpPost]
+    [Route("[action]")]
     [Authorize(Policy = "Admin")]
     public ActionResult Insert(Jewelry newJewelry)
     {
@@ -43,7 +46,8 @@ public class JewelryController : ControllerBase
         return CreatedAtAction(nameof(Insert), new { id = newJewelry.Id }, newJewelry);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut]
+    [Route("[action]/{id}")]
     [Authorize(Policy = "Admin")]
     public ActionResult Update(int id, Jewelry newJewelry)
     {
@@ -58,7 +62,8 @@ public class JewelryController : ControllerBase
         return Ok(oldJewelry);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete]
+    [Route("[action]/{id}")]
     [Authorize(Policy = "Admin")]
     public ActionResult Delete(int id)
     {

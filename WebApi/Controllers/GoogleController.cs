@@ -1,4 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -10,14 +12,15 @@ using WebApi.Managers;
 namespace WebApi.Controllers;
 
 
-[Route("google")]
+[Route("[controller]")]
 [ApiController]
 public class GoogleController : ControllerBase
 {
     /// <summary>
     /// התחברות דרך Google
     /// </summary>
-    [HttpGet("login")]
+    [HttpGet]
+    [Route("[action]")]
     public IActionResult Login()
     {
         var properties = new AuthenticationProperties
@@ -27,49 +30,59 @@ public class GoogleController : ControllerBase
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
 
-    /// <summary>
-    /// חזרה מגוגל לאחר אימות
-    /// </summary>
-    // [HttpGet("google-response")]
-    // public async Task<IActionResult> GoogleResponse()
-    // {
-    //     var authResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    //     if (!authResult.Succeeded)
-    //     {
-    //         return Unauthorized();
-    //     }
-    //     return Ok(GetUserClaims());
-    // }
-
-    [HttpGet("google-response")]
+    [HttpGet]
+    [Route("[action]")]
     public async Task<IActionResult> GoogleResponse()
     {
-        var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        if (!authenticateResult.Succeeded)
+        var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        if (!result.Succeeded)
         {
-            return RedirectToAction("Login");
+            var failureMessage = result.Failure?.Message ?? "Unknown error";
+            Console.WriteLine($"Authentication failed: {failureMessage}");
+            return BadRequest($"Authentication failed: {failureMessage}");
         }
 
-        // הדפסת כל הנתונים שמוחזרים כדי לוודא שהם מגיעים כמו שצריך
-        var claims = authenticateResult.Principal?.Claims;
+        var claims = result.Principal.Identities
+            .FirstOrDefault()?.Claims.Select(c => new { c.Type, c.Value });
+
         foreach (var claim in claims)
         {
             Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
         }
 
-        var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-        var token = TokenService.GetToken((List<Claim>)claims);
+        // קבלי את טוקן הגישה של גוגל
+        var googleAccessToken = result.Properties.GetTokenValue("access_token");
 
-        return new JsonResult(new { token });
+        // צור טוקן משלך
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes("YourSuperSecretKey");
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(
+            [
+            new Claim(ClaimTypes.NameIdentifier, result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? ""),
+            new Claim(ClaimTypes.Name, result.Principal.Identity?.Name ?? ""),
+            new Claim("GoogleAccessToken", googleAccessToken ?? ""),
+            new Claim("Type","Admin"),
+            new Claim("Type","User")
+
+        ]),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var jwtToken = tokenHandler.WriteToken(token);
+
+        return Ok(new { Token = jwtToken, GoogleAccessToken = googleAccessToken, Claims = claims });
     }
 
     /// <summary>
     /// החזרת פרטי המשתמש המחובר
     /// </summary>
-    [Authorize]
-    [HttpGet("userinfo")]
+    [HttpGet]
+    [Route("[action]")]
+    [Authorize("User")]
     public IActionResult GetUserInfo()
     {
         return Ok(GetUserClaims());
@@ -79,7 +92,8 @@ public class GoogleController : ControllerBase
     /// התנתקות מהמערכת
     /// </summary>
     // [Authorize]
-    [HttpGet("logout")]
+    [HttpGet]
+    [Route("[action]")]
     public IActionResult Logout()
     {
         // await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

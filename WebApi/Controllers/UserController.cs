@@ -18,17 +18,20 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [Route("Get")]
+    [Route("GET")]
     [Authorize(Policy = "Admin")]
     public ActionResult<List<User>> Get()
     {
-        return Ok(_userService.GetAll()); // גישה לכל המשתמשים
+        var users = _userService.GetAll();
+        Console.WriteLine(users);
+        return Ok(users); // גישה לכל המשתמשים
     }
 
     [HttpGet("{id}")]
     public ActionResult<User> Get(int id)
     {
         var user = _userService.GetAll().FirstOrDefault(u => u.Id == id);
+        Console.WriteLine("user:" + user);
         if (user == null)
         { return NotFound("user not found"); }
         return Ok(user);

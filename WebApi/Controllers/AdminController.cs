@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Managers;
@@ -21,7 +19,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllUsers")]
+        [Route("[action]")]
         [Authorize(Policy = "Admin")]
         public IEnumerable<User> GetAllUsers()
         {
@@ -32,13 +30,13 @@ namespace WebApi.Controllers
         [Route("[action]")]
         public ActionResult<string> Login([FromBody] User User1)
         {
-            Console.WriteLine($"Received login request: {User1.UserName}, {User1.Password}");
+            Console.WriteLine($"Received login request: {User1.UserName}, {User1.Password} ,{User1.Type}");
 
             User? users = _userService.GetAll()?.FirstOrDefault(user => user.Id == User1.Id && user.Password == User1.Password);
             // if (users == null)
-            if (User1.UserName != "Ruti" || User1.Password != "rutich33013")
+            if (User1.UserName != "Ruti" || User1.Password != "rutich33013" || User1.Type != "Admin")
             {
-                return Unauthorized("Can't find user, or somthing.....");
+                return Unauthorized("משתמש לא נמצא");
             }
 
             var claims = new List<Claim>

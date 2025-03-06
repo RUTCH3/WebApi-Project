@@ -1,17 +1,77 @@
 [
-  { "Id": 1, "Name": "Necklace", "Price": 20.0 },
-  { "Id": 2, "Name": "Bracelet", "Price": 30.4 },
-  { "Id": 3, "Name": "Ring", "Price": 50.0 },
-  { "Id": 4, "Name": "Earrings", "Price": 30.4 },
-  { "Id": 5, "Name": "Pendant", "Price": 30.4 },
-  { "Id": 6, "Name": "Brooch", "Price": 30.4 },
-  { "Id": 7, "Name": "Tiara", "Price": 12.4 },
-  { "Id": 8, "Name": "Bangle", "Price": 24.0 },
-  { "Id": 9, "Name": "Crown", "Price": 18.9 },
-  { "Id": 10, "Name": "Locket", "Price": 20 },
-  { "Id": 11, "Name": "Silver Crown", "Price": 18.9 },
-  { "Id": 12, "Name": "Gold Locket", "Price": 20 },
-  { "Id": 13, "Name": "Locket", "Price": 20 },
-  { "Id": 14, "Name": "Silver Crown", "Price": 18.9 },
-  { "Id": 15, "Name": "Gold Locket", "Price": 20 }
+  {
+    "Id": 1,
+    "Name": "Necklace",
+    "Price": 20.0
+  },
+  {
+    "Id": 2,
+    "Name": "Bracelet",
+    "Price": 30.4
+  },
+  {
+    "Id": 3,
+    "Name": "Ring",
+    "Price": 50.0
+  },
+  {
+    "Id": 4,
+    "Name": "Earrings",
+    "Price": 30.4
+  },
+  {
+    "Id": 5,
+    "Name": "Pendant",
+    "Price": 30.4
+  },
+  {
+    "Id": 6,
+    "Name": "Brooch",
+    "Price": 30.4
+  },
+  {
+    "Id": 7,
+    "Name": "Tiara",
+    "Price": 12.4
+  },
+  {
+    "Id": 8,
+    "Name": "Bangle",
+    "Price": 24.0
+  },
+  {
+    "Id": 9,
+    "Name": "Crown",
+    "Price": 18.9
+  },
+  {
+    "Id": 10,
+    "Name": "Locket",
+    "Price": 20
+  },
+  {
+    "Id": 11,
+    "Name": "Silver Crown",
+    "Price": 18.9
+  },
+  {
+    "Id": 12,
+    "Name": "Gold Locket",
+    "Price": 20
+  },
+  {
+    "Id": 13,
+    "Name": "Locket",
+    "Price": 20
+  },
+  {
+    "Id": 14,
+    "Name": "Silver Crown",
+    "Price": 18.9
+  },
+  {
+    "Id": 15,
+    "Name": "Gold Locket",
+    "Price": 20
+  }
 ]
