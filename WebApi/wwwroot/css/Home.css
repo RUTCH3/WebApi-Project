@@ -31,18 +31,7 @@ tr:hover {
   background-color: #f1f1f1;
 }
 
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  margin-right: 5px;
-}
 
-button:hover {
-  background-color: #0056b3;
-}
 
 body {
   font-family: Arial, sans-serif;
@@ -56,36 +45,6 @@ header {
   color: white;
   padding: 1rem 0;
   text-align: center;
-}
-
-nav {
-  display: flex;
-  justify-content: center;
-  background-color: #444;
-  padding: 0.5rem 0;
-}
-
-nav a {
-  color: white;
-  text-decoration: none;
-  margin: 0 1rem;
-  font-size: 1.1rem;
-}
-
-nav a:hover {
-  color: gold;
-}
-
-.hero {
-  text-align: center;
-  background: url("../pictures/20.webp") no-repeat center center/cover;
-  color: white;
-  padding: 5rem 1rem;
-}
-
-.hero h1 {
-  font-size: 3rem;
-  margin: 0;
 }
 
 .products {

@@ -4,10 +4,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using WebApi.Managers;
 
 namespace WebApi.Controllers;
 
@@ -45,6 +43,10 @@ public class GoogleController : ControllerBase
         var claims = result.Principal.Identities
             .FirstOrDefault()?.Claims.Select(c => new { c.Type, c.Value });
 
+        var picture = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+
+        var pictureUrl = claims.FirstOrDefault(c => c.Type == "urn:google:picture")?.Value;
+        Console.WriteLine($"User Profile Picture: {pictureUrl}");
         foreach (var claim in claims)
         {
             Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
@@ -55,7 +57,7 @@ public class GoogleController : ControllerBase
 
         // צור טוקן משלך
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes("YourSuperSecretKey");
+        var key = Encoding.ASCII.GetBytes("ne3i8d7g28tb_ui34cjmyn7tgy");
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(
@@ -77,21 +79,24 @@ public class GoogleController : ControllerBase
         return Ok(new { Token = jwtToken, GoogleAccessToken = googleAccessToken, Claims = claims });
     }
 
-    /// <summary>
-    /// החזרת פרטי המשתמש המחובר
-    /// </summary>
-    [HttpGet]
-    [Route("[action]")]
-    [Authorize("User")]
-    public IActionResult GetUserInfo()
+    [HttpGet("profile-picture")]
+    public async Task<IActionResult> GetProfilePicture()
     {
-        return Ok(GetUserClaims());
+        var pictureUrl = User.Claims.FirstOrDefault(c => c.Type == "urn:google:picture")?.Value;
+        if (string.IsNullOrEmpty(pictureUrl))
+        {
+            return NotFound(new { message = "Profile picture not found" });
+        }
+
+        using HttpClient client = new();
+        var imageBytes = await client.GetByteArrayAsync(pictureUrl);
+        Console.WriteLine("image bytes: " + imageBytes);
+        return File(imageBytes, "image/jpeg"); // או image/png
     }
 
     /// <summary>
     /// התנתקות מהמערכת
     /// </summary>
-    // [Authorize]
     [HttpGet]
     [Route("[action]")]
     public IActionResult Logout()
@@ -99,18 +104,5 @@ public class GoogleController : ControllerBase
         // await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         // return Ok(new { message = "User logged out successfully" });
         return SignOut(CookieAuthenticationDefaults.AuthenticationScheme);
-
-    }
-
-    /// <summary>
-    /// פונקציה עוזרת לשליפת פרטי המשתמש
-    /// </summary>
-    private object GetUserClaims()
-    {
-        return new
-        {
-            name = User.Identity?.Name,
-            email = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value
-        };
     }
 }

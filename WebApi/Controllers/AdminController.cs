@@ -33,8 +33,8 @@ namespace WebApi.Controllers
             Console.WriteLine($"Received login request: {User1.UserName}, {User1.Password} ,{User1.Type}");
 
             User? users = _userService.GetAll()?.FirstOrDefault(user => user.Id == User1.Id && user.Password == User1.Password);
-            // if (users == null)
-            if (User1.UserName != "Ruti" || User1.Password != "rutich33013" || User1.Type != "Admin")
+            if (users == null)
+            // if (User1.UserName != "Ruti" || User1.Password != "rutich33013")
             {
                 return Unauthorized("משתמש לא נמצא");
             }

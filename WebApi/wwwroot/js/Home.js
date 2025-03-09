@@ -89,26 +89,28 @@ function _displayJewelryItems(data) {
     const price = document.createElement("p");
     price.textContent = `₪${item.Price || "N/A"}`;
 
-    // יצירת כפתור הוספה לסל
-    const addToCartButton = document.createElement("button");
-    addToCartButton.textContent = "Add to Cart";
-    addToCartButton.style.border = "black solid 2px";
-    addToCartButton.onclick = () => addToCart(item.Name, item.Price);
+    // // יצירת כפתור הוספה לסל
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    // deleteButton.style.border = "black solid 2px";
+    deleteButton.style.backgroundColor = "pink";
+    deleteButton.onclick = () => addToCart(item.Name, item.Price);
 
     // יצירת כפתור עריכה לסל
-    const editToCartButton = document.createElement("button");
-    editToCartButton.textContent = "edit Cart";
-    editToCartButton.style.border = "black solid 2px";
-    editToCartButton.onclick = () => addToCart(item.Name, item.Price);
-    editToCartButton.onsubmit = () => addJewelry();
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+    // editButton.style.border = "black solid 2px";
+    editButton.style.backgroundColor = "pink";
+    editButton.onclick = () => addToCart(item.Name, item.Price);
+    editButton.onsubmit = () => addJewelry();
 
     // הוספת כל האלמנטים ל-div
     productDiv.appendChild(img);
     productDiv.appendChild(id);
     productDiv.appendChild(title);
     productDiv.appendChild(price);
-    productDiv.appendChild(addToCartButton);
-    productDiv.appendChild(editToCartButton);
+    productDiv.appendChild(deleteButton);
+    productDiv.appendChild(editButton);
 
     // הוספת ה-div לתוך ה-section
     section.appendChild(productDiv);
@@ -126,7 +128,19 @@ function addToCart(product, price) {
 }
 const saveToken = (token) => {
   sessionStorage.setItem("token", token);
-  console.log("Token saved:", token);
+  console.log("Token saved");
+};
+
+const writeName = (claims) => {
+  try {
+    let userName = claims[8].value || claims[4].value || "משתמש";
+    console.log(claims[8].value);
+    let nameElement = document.getElementById("helloUser");
+    nameElement.textContent += ` ${userName}`;
+  }
+  catch (err) {
+    console.error("An error in writeName: ", err)
+  }
 };
 
 // קבלי את הטוקן מהשרת אחרי התחברות
@@ -147,24 +161,40 @@ fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטו�
     if (data.token) {
       console.log("reached to token in google....");
       saveToken(data.token);
+      loadPicture();
+      writeName(data.claims);
       init();
     } else {
       console.error("No token received", data);
     }
   })
   .catch((err) => {
-    // fetch(`${crown}/${id}`, {
-    //   method: "GET",
-    //   headers: { Accept: "application/json", "Content-Type": "application/json" },
-    //   body: JSON.stringify(item),
-    // })
-    //   .then((data) => {
-    let data = { "token": "kjhgfdxcvbhu765rfvbnji87ytg.8765rvhuygh.6r7ytfgb" };
-    saveToken(data.token);
-    init();
-    // })
-    // .catch((error) => console.error("Unable to update item.", error, "\ngoogle error: ", err));
+    console.log("An error: ", err)
   });
+
+
+// נקרא לפונקציה אחרי שהעמוד נטען
+//document.addEventListener("DOMContentLoaded", async () => {
+const loadPicture = async () => {
+  const imgElement = document.getElementById("profile-pic");
+  try {
+    const response = await fetch('/Google/profile-picture');
+    if (!response.ok) throw new Error("Failed to fetch profile picture");
+
+    const imageBlob = await response.blob();
+    const imageUrl = URL.createObjectURL(imageBlob);
+
+    console.log("img before");
+    imgElement.src = imageUrl; // טוען את התמונה מהשרת
+    console.log(`img after ${imgElement.src}`);
+    imgElement.style.display = "block";
+  } catch (error) {
+    imgElement.style.display = "none";
+    const i = document.getElementById("i-user");
+    i.style.display = "block";
+    console.error("Error loading profile picture:", error);
+  }
+};
 
 const init = () => {
   const token = sessionStorage.getItem("token");

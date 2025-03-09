@@ -5,6 +5,6 @@ namespace WebApi.Interfaces
 {
     public interface IUserService : IGeneralService<User>
     {
-        
+
     }
 }

@@ -1,12 +1,10 @@
 using WebApi.Managers;
 using WebApi.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using WebApi.Middlewares;
-
-
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,6 +100,18 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("openid");
     options.Scope.Add("profile"); // גישה לפרופיל
     options.Scope.Add("email"); // גישה לאימייל
+
+    // הוספת scope כדי לקבל את התמונה של המשתמש
+    options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
+    options.Scope.Add("https://www.googleapis.com/auth/userinfo.email");
+
+    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+    options.ClaimActions.MapJsonKey("urn:google:picture", "picture"); // מיפוי התמונה
+    options.ClaimActions.MapJsonKey("urn:google:given_name", "given_name");
+    options.ClaimActions.MapJsonKey("urn:google:family_name", "family_name");
+
 })
 .AddJwtBearer(options =>
 {

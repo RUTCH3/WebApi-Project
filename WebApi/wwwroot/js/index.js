@@ -2,10 +2,10 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
     event.preventDefault();
 
     const user = {
-        id: 1,
+        id: 0,
         userName: String(document.getElementById("username").value),
         password: String(document.getElementById("password").value),
-        Type: String(document.getElementById("admin").value)
+        Type: "User"
     };
 
     try {
@@ -22,6 +22,8 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
             const errorMessage = await response.text();
             throw new Error(errorMessage);
         }
+        let name = response.name
+        console.log(name);
 
         const token = await response.text(); // קבלת הטוקן מהשרת
         sessionStorage.setItem("token", token); // שמירת הטוקן ב-sessionStorage
