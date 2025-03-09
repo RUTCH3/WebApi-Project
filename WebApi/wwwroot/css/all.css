@@ -1,0 +1,48 @@
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: #6e6e6e;
+    padding: 0.5rem 0;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 1rem;
+    font-size: 1.1rem;
+}
+
+nav a:hover {
+    color: gold;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+header {
+    background-color: pink;
+}
+
+#profile-pic {
+    display: none;
+    width: 40px;
+    height: 40px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+button:hover {
+    background-color: #595858;
+}
