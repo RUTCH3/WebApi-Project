@@ -1,3 +1,6 @@
+const crown = "../data/users.json";
+let users = [];
+
 document.getElementById("loginForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 

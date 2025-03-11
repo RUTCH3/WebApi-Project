@@ -17,11 +17,17 @@ public class JewelryController : ControllerBase
         _jewelryService = jewelryService;
     }
 
+
     [HttpGet]
     [Route("[action]")]
     public ActionResult<List<Jewelry>> Get()
     {
-        return Ok(_jewelryService.GetAll());
+        var user = User.Identity;
+        if (user == null || !user.IsAuthenticated)
+        {
+            return Unauthorized(new { message = "User is not authenticated." });
+        }
+        return Ok(new { message = "User is authenticated!", User.Identity.Name , Jewelries = _jewelryService.GetAll()});
     }
 
     [HttpGet]

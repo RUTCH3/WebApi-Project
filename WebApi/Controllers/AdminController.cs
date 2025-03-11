@@ -32,7 +32,8 @@ namespace WebApi.Controllers
         {
             Console.WriteLine($"Received login request: {User1.UserName}, {User1.Password} ,{User1.Type}");
 
-            User? users = _userService.GetAll()?.FirstOrDefault(user => user.Id == User1.Id && user.Password == User1.Password);
+            User? users = _userService.GetAll()?.FirstOrDefault(user => user.UserName == User1.UserName && user.Password == User1.Password);
+            Console.WriteLine("users: " + users.Id + " " + users.UserName + " " + users.Type + " " + users.Password);
             if (users == null)
             // if (User1.UserName != "Ruti" || User1.Password != "rutich33013")
             {
@@ -65,7 +66,5 @@ namespace WebApi.Controllers
             return new OkObjectResult(TokenService.WriteToken(token));
         }
     }
-
-
 
 }

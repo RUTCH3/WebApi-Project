@@ -1,4 +1,4 @@
-const crown = "../data/users.json";
+const crown = "/User";
 let users = [];
 
 function getUsers() {
@@ -7,6 +7,25 @@ function getUsers() {
         .then((data) => _displayUsers(data))
         .catch((error) => console.error("Unable to get items.", error));
 }
+
+function addUser() {
+    const name = document.getElementById("add-name").value.trim();
+    const price = document.getElementById("add-price").value.trim();
+
+    const item = { name, price };
+
+    fetch(`${crown}/${id}`, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+    })
+        .then(() => {
+            getJewelryItems();
+            document.getElementById("add-form").reset();
+        })
+        .catch((error) => console.error("Unable to add item.", error));
+}
+
 
 // נקרא לפונקציה אחרי שהעמוד נטען
 document.addEventListener("DOMContentLoaded", async function () {
@@ -60,14 +79,13 @@ function _displayUsers(data) {
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
         deleteButton.style.backgroundColor = "pink";
-        deleteButton.onclick = () => addToCart(item.Name, item.Price);
+        deleteButton.onclick = () => deleteJewelry(item.Id);
 
         // יצירת כפתור עריכה לסל
         const editButton = document.createElement("button");
         editButton.textContent = "Edit";
         editButton.style.backgroundColor = "pink";
-        editButton.onclick = () => h();
-        editButton.onsubmit = () => addJewelry();
+        editButton.onclick = () => updateJewelry();
 
         // הוספת כל האלמנטים ל-div
         productDiv.appendChild(id);
@@ -90,15 +108,20 @@ const init = () => {
         window.location.href = "/index.html"; // מחזיר לדף ההתחברות
     }
     writeName();
+    loadPicture();
     getUsers();
 }
 
-const writeName = () => {
-    fetch("/Google/GetUserInfo").then(response => {
-        let userName = response.name || response.email || " משתמש ";
-        let name = document.getElementById("helloUser");
-        name.textContent += `${userName}`;
-    }).catch(err => console.log(`An error in userinfo: ${err}`));
-}
+const writeName = (claims) => {
+    try {
+        let userName = claims[8].value || claims[4].value || "משתמש";
+        console.log(claims[8].value);
+        let nameElement = document.getElementById("helloUser");
+        nameElement.textContent += ` ${userName}`;
+    }
+    catch (err) {
+        console.error("An error in writeName: ", err)
+    }
+};
 
 init();

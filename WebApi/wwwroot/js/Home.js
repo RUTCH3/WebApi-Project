@@ -1,9 +1,53 @@
-const crown = "../data/jewelrys.json";
+const crown = "/Jewelry";
 let jewelryItems = [];
 
+
+// קבלי את הטוקן מהשרת אחרי התחברות
+fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטוקן
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.text(); // קרא כטקסט תחילה
+  })
+  .then(text => {
+    if (!text) {
+      throw new Error("Empty response received");
+    }
+    return JSON.parse(text); // הפוך ל-JSON ידנית
+  })
+  .then((data) => {
+    if (data.token) {
+      console.log("reached to token in google....");
+      saveToken(data.token);
+      loadPicture();
+      writeName(data.claims);
+      init();
+    } else {
+      console.error("No token received", data);
+    }
+  })
+  .catch((err) => {
+    console.log("An error: ", err);
+    loadPicture();
+    writeName();
+    init();
+  });
+
+
 function getJewelryItems() {
-  fetch(crown)
-    .then((response) => response.json())
+  fetch(`${crown}/Get`, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+    }
+  }).then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.headers.get("content-length") === "0" ? [] : response.json();
+  })
     .then((data) => _displayJewelryItems(data))
     .catch((error) => console.error("Unable to get items.", error));
 }
@@ -14,7 +58,7 @@ function addJewelry() {
 
   const item = { name, price };
 
-  fetch(`${crown}/${id}`, {
+  fetch(`${crown}`, {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     body: JSON.stringify(item),
@@ -122,56 +166,24 @@ function _displayCount(count) {
   counter.textContent = `${count} ${count === 1 ? "item" : "items"}`;
 }
 
-function addToCart(product, price) {
-  alert(`${product} has been added to your cart for $${price}!`);
-
-}
 const saveToken = (token) => {
   sessionStorage.setItem("token", token);
   console.log("Token saved");
 };
 
 const writeName = (claims) => {
+  let nameElement = document.getElementById("helloUser");
+  let userName;
   try {
-    let userName = claims[8].value || claims[4].value || "משתמש";
+    userName = claims[8].value || claims[4].value || "משתמש";
     console.log(claims[8].value);
-    let nameElement = document.getElementById("helloUser");
-    nameElement.textContent += ` ${userName}`;
   }
   catch (err) {
+    userName = "משתמש";
     console.error("An error in writeName: ", err)
   }
+  nameElement.textContent += ` ${userName}`;
 };
-
-// קבלי את הטוקן מהשרת אחרי התחברות
-fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטוקן
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return response.text(); // קרא כטקסט תחילה
-  })
-  .then(text => {
-    if (!text) {
-      throw new Error("Empty response received");
-    }
-    return JSON.parse(text); // הפוך ל-JSON ידנית
-  })
-  .then((data) => {
-    if (data.token) {
-      console.log("reached to token in google....");
-      saveToken(data.token);
-      loadPicture();
-      writeName(data.claims);
-      init();
-    } else {
-      console.error("No token received", data);
-    }
-  })
-  .catch((err) => {
-    console.log("An error: ", err)
-  });
-
 
 // נקרא לפונקציה אחרי שהעמוד נטען
 //document.addEventListener("DOMContentLoaded", async () => {

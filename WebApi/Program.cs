@@ -5,14 +5,16 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using Serilog;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // הגדרת HTTPS
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(3000); // HTTP
-    options.ListenLocalhost(3001, listenOptions => { listenOptions.UseHttps(); });
+    options.ListenLocalhost(5000); // HTTP
+    options.ListenLocalhost(5001, listenOptions => { listenOptions.UseHttps(); });
 });
 
 builder.Services.AddControllers();
@@ -87,31 +89,9 @@ var clientSecret = googleAuthConfig["ClientSecret"];
 // הוספת אימות דרך Google
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie()
-.AddGoogle(options =>
-{
-    options.ClientId = clientId;
-    options.ClientSecret = clientSecret;
-    options.CallbackPath = "/signin-google";
-    options.BackchannelTimeout = TimeSpan.FromMinutes(2); // הארכת זמן ההמתנה
-    options.Scope.Add("openid");
-    options.Scope.Add("profile"); // גישה לפרופיל
-    options.Scope.Add("email"); // גישה לאימייל
-
-    // הוספת scope כדי לקבל את התמונה של המשתמש
-    options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
-    options.Scope.Add("https://www.googleapis.com/auth/userinfo.email");
-
-    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
-    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-    options.ClaimActions.MapJsonKey("urn:google:picture", "picture"); // מיפוי התמונה
-    options.ClaimActions.MapJsonKey("urn:google:given_name", "given_name");
-    options.ClaimActions.MapJsonKey("urn:google:family_name", "family_name");
-
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; // שינוי מ-Cookie ל-JWT
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // השתמש ב-JWT כברירת מחדל
 })
 .AddJwtBearer(options =>
 {
@@ -121,7 +101,77 @@ builder.Services.AddAuthentication(options =>
     options.RequireHttpsMetadata = true;
     options.SaveToken = true;
     options.TokenValidationParameters = TokenService.GetTokenValidationParameters();
+})
+.AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = clientId;
+    options.ClientSecret = clientSecret;
+    options.CallbackPath = "/signin-google";
+    options.BackchannelTimeout = TimeSpan.FromMinutes(5);
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+    options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
+    options.Scope.Add("https://www.googleapis.com/auth/userinfo.email");
+
+    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+    options.ClaimActions.MapJsonKey("urn:google:picture", "picture");
+    options.ClaimActions.MapJsonKey("urn:google:given_name", "given_name");
+    options.ClaimActions.MapJsonKey("urn:google:family_name", "family_name");
+
+    options.Events.OnCreatingTicket = context =>
+    {
+        var identity = (ClaimsIdentity)context.Principal.Identity;
+        identity.AddClaim(new Claim(ClaimTypes.Role, "User"));
+        return Task.CompletedTask;
+    };
 });
+// builder.Services.AddAuthentication(options =>
+// {
+//     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+// })
+// .AddCookie()
+// .AddGoogle(options =>
+// {
+//     options.ClientId = clientId;
+//     options.ClientSecret = clientSecret;
+//     options.CallbackPath = "/signin-google";
+//     options.BackchannelTimeout = TimeSpan.FromMinutes(2); // הארכת זמן ההמתנה
+//     options.Scope.Add("openid");
+//     options.Scope.Add("profile"); // גישה לפרופיל
+//     options.Scope.Add("email"); // גישה לאימייל
+
+//     // הוספת scope כדי לקבל את התמונה של המשתמש
+//     options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
+//     options.Scope.Add("https://www.googleapis.com/auth/userinfo.email");
+
+//     options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "sub");
+//     options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+//     options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+//     options.ClaimActions.MapJsonKey("urn:google:picture", "picture"); // מיפוי התמונה
+//     options.ClaimActions.MapJsonKey("urn:google:given_name", "given_name");
+//     options.ClaimActions.MapJsonKey("urn:google:family_name", "family_name");
+//     options.Events.OnCreatingTicket = context =>
+//     {
+//         var identity = (ClaimsIdentity)context.Principal.Identity;
+//         identity.AddClaim(new Claim(ClaimTypes.Role, "User")); // הוספת תפקיד "User" לכל משתמש שמתחבר
+//         return Task.CompletedTask;
+//     };
+
+// })
+// .AddJwtBearer(options =>
+// {
+//     options.Authority = "https://accounts.google.com";
+//     options.MetadataAddress = "https://accounts.google.com/.well-known/openid-configuration";
+//     options.Audience = clientId;
+//     options.RequireHttpsMetadata = true;
+//     options.SaveToken = true;
+//     options.TokenValidationParameters = TokenService.GetTokenValidationParameters();
+// });
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy => policy.RequireClaim("type", "Admin"))
@@ -134,6 +184,14 @@ builder.Services.AddCors(options =>
                         .AllowAnyMethod()
                         .AllowAnyHeader());
 });
+
+// builder.Host.UseSerilog((context, config) =>
+// {
+//     config
+//         .WriteTo.Console()
+//         .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+//         .MinimumLevel.Debug();
+// });
 
 var app = builder.Build();
 
