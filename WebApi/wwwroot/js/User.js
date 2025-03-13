@@ -1,8 +1,8 @@
-const crown = "/User";
+const userUrl = "/User";
 let users = [];
 
 function getUsers() {
-    fetch(crown)
+    fetch(userUrl)
         .then((response) => response.json())
         .then((data) => _displayUsers(data))
         .catch((error) => console.error("Unable to get items.", error));
@@ -14,7 +14,7 @@ function addUser() {
 
     const item = { name, price };
 
-    fetch(`${crown}/${id}`, {
+    fetch(`${userUrl}/${id}`, {
         method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         body: JSON.stringify(item),
@@ -99,6 +99,29 @@ function _displayUsers(data) {
         section.appendChild(productDiv);
     });
 }
+
+const loadPicture = async () => {
+    const imgElement = document.getElementById("profile-pic");
+    try {
+        const response = await fetch('/Google/profile-picture');
+        if (!response.ok) throw new Error("Failed to fetch profile picture");
+
+        const imageBlob = await response.blob();
+        console.log(imageBlob.bytes);
+        const imageUrl = URL.createObjectURL(imageBlob);
+        console.log(imageUrl);
+
+        console.log("img before");
+        imgElement.src = imageUrl; // טוען את התמונה מהשרת
+        console.log(`img after ${imgElement.src}`);
+        imgElement.style.display = "block";
+    } catch (error) {
+        imgElement.style.display = "none";
+        const i = document.getElementById("i-user");
+        i.style.display = "block";
+        console.error("Error loading profile picture:", error);
+    }
+};
 
 const init = () => {
     const token = sessionStorage.getItem("token");

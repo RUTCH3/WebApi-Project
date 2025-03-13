@@ -27,7 +27,7 @@ public class UserController : ControllerBase
         return Ok(users); // גישה לכל המשתמשים
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("GET/{id}")]
     public ActionResult<User> Get(int id)
     {
         var user = _userService.GetAll().FirstOrDefault(u => u.Id == id);
@@ -37,7 +37,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPost]
+    [HttpPost("POST")]
     [Authorize(Policy = "Admin")]
     public ActionResult Insert(User newUser)
     {
@@ -48,7 +48,7 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(Insert), new { id = newUser.Id }, newUser);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("PUT/{id}")]
     [Authorize(Policy = "Admin")]
     public ActionResult Update(int id, User newUser)
     {
@@ -61,10 +61,10 @@ public class UserController : ControllerBase
         oldUser.UserName = newUser.UserName;
         oldUser.Password = newUser.Password;
         _userService.SaveJewelrys(users);
-        return NoContent();
+        return Ok("user updated succefully.");
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("DELETE/{id}")]
     [Authorize(Policy = "Admin")]
     public ActionResult Delete(int id)
     {
@@ -74,6 +74,6 @@ public class UserController : ControllerBase
             return NotFound("invalid id");
         users.Remove(dUser);
         _userService.SaveJewelrys(users);
-        return NoContent();
+        return Ok("user deleted succefully.");
     }
 }

@@ -36,11 +36,13 @@ fetch("/Google/GoogleResponse") // כתובת ה-API שמחזירה את הטו�
 
 
 function getJewelryItems() {
+  console.log("JWT Token:", sessionStorage.getItem("token"));
   fetch(`${crown}/Get`, {
     method: "GET",
     headers: {
-      "Accept": "application/json",
-      "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+      Accept: "application/json",
+      "Content-Type": "application/json" ,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`
     }
   }).then(response => {
     if (!response.ok) {
@@ -185,8 +187,6 @@ const writeName = (claims) => {
   nameElement.textContent += ` ${userName}`;
 };
 
-// נקרא לפונקציה אחרי שהעמוד נטען
-//document.addEventListener("DOMContentLoaded", async () => {
 const loadPicture = async () => {
   const imgElement = document.getElementById("profile-pic");
   try {
@@ -194,7 +194,9 @@ const loadPicture = async () => {
     if (!response.ok) throw new Error("Failed to fetch profile picture");
 
     const imageBlob = await response.blob();
+    console.log(imageBlob.bytes);
     const imageUrl = URL.createObjectURL(imageBlob);
+    console.log(imageUrl);
 
     console.log("img before");
     imgElement.src = imageUrl; // טוען את התמונה מהשרת

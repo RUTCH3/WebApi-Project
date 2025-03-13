@@ -26,6 +26,7 @@ namespace WebApi.Managers
         {
             user.Id = nextId++;
             Users?.Add(user);
+            SaveJewelrys(Users);
         }
 
         public void Delete(int id)

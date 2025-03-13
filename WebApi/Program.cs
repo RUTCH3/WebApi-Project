@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,17 +87,17 @@ var jwtConfig = builder.Configuration.GetSection("Authentication:Jwt");
 var clientId = googleAuthConfig["ClientId"];
 var clientSecret = googleAuthConfig["ClientSecret"];
 
-// הוספת אימות דרך Google
+// הוספת אימות דרך Google לחיבור משתמשים ו -JWT לקריאות API
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; // שינוי מ-Cookie ל-JWT
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // השתמש ב-JWT כברירת מחדל
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; // שמירת Session ב-Cookie
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // אימות כברירת מחדל - JWT
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // ניסיון התחברות - Google
 })
 .AddJwtBearer(options =>
 {
     options.Authority = "https://accounts.google.com";
-    options.MetadataAddress = "https://accounts.google.com/.well-known/openid-configuration";
+    // options.MetadataAddress = "https://accounts.google.com/.well-known/openid-configuration";
     options.Audience = clientId;
     options.RequireHttpsMetadata = true;
     options.SaveToken = true;

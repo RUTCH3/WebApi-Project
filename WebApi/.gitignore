@@ -5,6 +5,9 @@ project.lock.json
 *.pyc
 secrets.json
 appsettings.json
+project notes.png
+requests.log
+Web API Project.pdf
 
 # Visual Studio Code
 .vscode

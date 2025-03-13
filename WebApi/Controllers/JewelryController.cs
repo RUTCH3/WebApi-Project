@@ -22,12 +22,38 @@ public class JewelryController : ControllerBase
     [Route("[action]")]
     public ActionResult<List<Jewelry>> Get()
     {
-        var user = User.Identity;
-        if (user == null || !user.IsAuthenticated)
+        try
         {
-            return Unauthorized(new { message = "User is not authenticated." });
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                System.Console.WriteLine("User is NOT authenticated.");
+                return Unauthorized(new { message = "User is not authenticated." });
+            }
+
+            System.Console.WriteLine("User authenticated: " + User.Identity.Name);
+
+            var jewelries = _jewelryService.GetAll();
+            return Ok(new
+            {
+                message = "User is authenticated!",
+                User.Identity.Name,
+                Jewelries = jewelries
+            });
         }
-        return Ok(new { message = "User is authenticated!", User.Identity.Name , Jewelries = _jewelryService.GetAll()});
+        catch (Exception ex)
+        {
+            System.Console.WriteLine("Exception in Get(): " + ex.Message);
+            return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        }
+        // var user = User.Identity;
+        // System.Console.WriteLine("current user: " + user.ToString());
+        // if (user == null || !user.IsAuthenticated)
+        // {
+        //     System.Console.WriteLine("user auth: " + user.IsAuthenticated);
+        //     return Unauthorized(new { message = "User is not authenticated." });
+        // }
+        // System.Console.WriteLine("user auth: " + user.IsAuthenticated);
+        // return Ok(new { message = "User is authenticated!", User.Identity.Name, Jewelries = _jewelryService.GetAll() });
     }
 
     [HttpGet]

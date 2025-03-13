@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using WebApi.Managers;
 
 namespace WebApi.Controllers;
 
@@ -54,27 +55,27 @@ public class GoogleController : ControllerBase
 
         // קבלי את טוקן הגישה של גוגל
         var googleAccessToken = result.Properties.GetTokenValue("access_token");
-
+        Console.WriteLine("reched to recive the token from google.");
         // צור טוקן משלך
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes("ne3i8d7g28tb_ui34cjmyn7tgy");
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(
             [
-            new Claim(ClaimTypes.NameIdentifier, result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? ""),
-            new Claim(ClaimTypes.Name, result.Principal.Identity?.Name ?? ""),
-            new Claim("GoogleAccessToken", googleAccessToken ?? ""),
-            new Claim("Type","Admin"),
-            new Claim("Type","User")
-
-        ]),
+                new Claim(ClaimTypes.NameIdentifier, result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? ""),
+                new Claim(ClaimTypes.Name, result.Principal.Identity?.Name ?? ""),
+                new Claim("GoogleAccessToken", googleAccessToken ?? ""),
+                new Claim("Type","Admin"),
+                new Claim("Type","User")
+            ]),
             Expires = DateTime.UtcNow.AddHours(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(TokenService.GetKey(), SecurityAlgorithms.HmacSha256Signature)
         };
+        Console.WriteLine("reched after the reciving the token from google.");
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwtToken = tokenHandler.WriteToken(token);
+        Console.WriteLine("before return the token from google.");
 
         return Ok(new { Token = jwtToken, GoogleAccessToken = googleAccessToken, Claims = claims });
     }
@@ -85,12 +86,13 @@ public class GoogleController : ControllerBase
         var pictureUrl = User.Claims.FirstOrDefault(c => c.Type == "urn:google:picture")?.Value;
         if (string.IsNullOrEmpty(pictureUrl))
         {
+            System.Console.WriteLine();
             return NotFound(new { message = "Profile picture not found" });
         }
 
         using HttpClient client = new();
         var imageBytes = await client.GetByteArrayAsync(pictureUrl);
-        Console.WriteLine("image bytes: " + imageBytes);
+        Console.WriteLine("image bytes: " + imageBytes.ToString());
         return File(imageBytes, "image/jpeg"); // או image/png
     }
 

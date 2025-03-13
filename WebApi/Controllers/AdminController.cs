@@ -35,16 +35,17 @@ namespace WebApi.Controllers
             User? users = _userService.GetAll()?.FirstOrDefault(user => user.UserName == User1.UserName && user.Password == User1.Password);
             Console.WriteLine("users: " + users.Id + " " + users.UserName + " " + users.Type + " " + users.Password);
             if (users == null)
-            // if (User1.UserName != "Ruti" || User1.Password != "rutich33013")
             {
                 return Unauthorized("משתמש לא נמצא");
             }
 
             var claims = new List<Claim>
             {
-                new("type", "User"),
-                new("type", "Admin")
+                new("type", "User")
+                // new("type", "Admin")
             };
+            if (User.Claims.FirstOrDefault(u => u.Type == "Admin") != null)
+                claims.Add(new("type", "Admin"));
             var token = TokenService.GetToken(claims);
             return new OkObjectResult(TokenService.WriteToken(token));
         }
