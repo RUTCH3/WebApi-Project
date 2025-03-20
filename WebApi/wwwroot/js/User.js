@@ -1,4 +1,4 @@
-const userUrl = "/User";
+const userUrl = "https://localhost:5001/User";
 let users = [];
 
 function getUsers() {

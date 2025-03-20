@@ -1,4 +1,4 @@
-const crown = "/Jewelry";
+const crown = "https://localhost:5001/Jewelry";
 let jewelryItems = [];
 
 
