@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jewelry Store</title>
+  <link rel="stylesheet" href="./css/index.css">
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"> -->
+  <link rel="stylesheet" href="./css/all.min.css">
+
+  <script src="./js/8f066012a0.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card p-4 shadow-lg rounded-4" style="max-width: 400px; width: 100%;">
+      <h2 class="text-center mb-4"> התחברות 🔐</h2>
+
+      <form id="loginForm">
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+          <input type="text" id="username" name="username" class="form-control" placeholder="שם משתמש" required>
+        </div>
+
+        <div class="mb-3 input-group">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          <input type="password" id="password" name="password" class="form-control" placeholder="סיסמה" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100"> התחבר 🚀</button>
+      </form>
+      <a style="margin-top: 10px;" class="nav-link btn btn-light text-dark px-3 p-2 w-100" href="/google/login"
+        asp-controller="Google" asp-action="Login">
+        Login with Google
+        <img class="google-icon" src="./pictures/google-icon.svg" style="height: 30px;width: 40px;">
+      </a>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS  -->
+  <script src="./js/bootstrap.bundle.min.js"></script>
+
+  <script src="./js/index.js"></script>
+</body>
+
+</html>
